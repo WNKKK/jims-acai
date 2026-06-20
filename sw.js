@@ -1,4 +1,4 @@
-﻿const CACHE_NAME = "jims-acai-rewards-v2";
+﻿const CACHE_NAME = "jims-acai-rewards-v3";
 const APP_SHELL = [
   "./",
   "./jims-acai-customer.html",
