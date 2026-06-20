@@ -1,4 +1,4 @@
-const CACHE_NAME = "jims-acai-rewards-v1";
+﻿const CACHE_NAME = "jims-acai-rewards-v2";
 const APP_SHELL = [
   "./",
   "./jims-acai-customer.html",
@@ -41,3 +41,4 @@ self.addEventListener("fetch", (event) => {
     })
   );
 });
+
