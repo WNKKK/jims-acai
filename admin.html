@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Jim's Açaí - Admin Dashboard</title>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-analytics.js";
+import { getFirestore, collection, addDoc, query, where, getDocs, doc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCkBdFLQBpr9TjbPyEtxRO9ztimgTlzzJY",
+  authDomain: "jims-acai-rewards.firebaseapp.com",
+  projectId: "jims-acai-rewards",
+  storageBucket: "jims-acai-rewards.firebasestorage.app",
+  messagingSenderId: "766100315950",
+  appId: "1:766100315950:web:aa4ad09d8f5ab6d036a4bf",
+  measurementId: "G-DXMDH0695D"
+};
+
+const app = initializeApp(firebaseConfig);
+try{ getAnalytics(app); }catch(e){}
+const db = getFirestore(app);
+
+window.fbDB = db;
+window.fbCollection = collection;
+window.fbAddDoc = addDoc;
+window.fbQuery = query;
+window.fbWhere = where;
+window.fbGetDocs = getDocs;
+window.fbDoc = doc;
+window.fbUpdateDoc = updateDoc;
+window.fbDeleteDoc = deleteDoc;
+window.fbOnSnapshot = onSnapshot;
+</script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --p1:#2d0845;--p2:#4a1070;--p3:#6b1a9a;--p4:#9333ea;
+  --gold:#c9a227;--gold-l:#e8c55a;--gold-d:#a07c10;
+  --off:#f8f4ff;--muted:#9b7fc0;--text:#1a0929;
+  --success:#16a34a;--success-bg:#f0fdf4;
+}
+html,body{height:100%;width:100%;background:var(--off);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;-webkit-font-smoothing:antialiased;color:var(--text)}
+
+body{display:flex;flex-direction:column}
+
+/* ─── LOGIN ─── */
+#login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(160deg,var(--p1) 0%,var(--p2) 60%,var(--p3) 100%)}
+#login-screen.hidden{display:none}
+
+.login-card{background:#fff;border-radius:20px;padding:40px 30px;box-shadow:0 20px 60px rgba(0,0,0,.3);width:100%;max-width:380px}
+.login-card h1{font-size:28px;font-weight:700;color:var(--p1);margin-bottom:12px}
+.login-card p{color:var(--muted);margin-bottom:30px;font-size:14px}
+
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:12px;font-weight:700;color:var(--p2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px}
+.form-group input{width:100%;padding:12px 14px;border:1.5px solid #e5dff0;border-radius:10px;font-size:14px;outline:none;background:#faf8ff}
+.form-group input:focus{border-color:var(--p3);background:#fff}
+
+.btn{display:block;width:100%;padding:14px;font-size:15px;font-weight:600;border:none;border-radius:10px;cursor:pointer;transition:opacity .15s,transform .1s;text-align:center}
+.btn:active{transform:scale(.975);opacity:.88}
+.btn-primary{background:linear-gradient(135deg,var(--p3),var(--p4));color:#fff}
+.btn-secondary{background:#f3e8ff;color:var(--p3);margin-top:8px}
+
+/* ─── ADMIN DASHBOARD ─── */
+#admin-screen{display:none;flex-direction:column;height:100vh}
+#admin-screen.active{display:flex}
+
+.admin-header{background:linear-gradient(160deg,var(--p1) 0%,var(--p2) 60%,var(--p3) 100%);padding:20px 24px;color:#fff;display:flex;justify-content:space-between;align-items:center}
+.admin-header h1{font-size:22px;font-weight:700}
+.btn-logout{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);color:#fff;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600}
+.btn-logout:hover{background:rgba(255,255,255,.3)}
+
+.admin-nav{background:#fff;border-bottom:1px solid #e5dff0;display:flex;gap:0;padding:0}
+.nav-btn{flex:1;padding:14px;font-size:13px;font-weight:600;color:var(--muted);background:#fff;border:none;border-bottom:3px solid transparent;cursor:pointer;transition:all .2s}
+.nav-btn.active{color:var(--p3);border-bottom-color:var(--p3);background:#faf5ff}
+
+.admin-body{flex:1;overflow-y:auto;padding:20px 24px}
+
+/* ─── TABS ─── */
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* ─── DASHBOARD TAB ─── */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+.stat-card{background:#fff;border-radius:14px;padding:18px;box-shadow:0 2px 8px rgba(45,8,69,.1)}
+.stat-card h3{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.stat-card .value{font-size:32px;font-weight:700;color:var(--p3)}
+
+.chart-container{background:#fff;border-radius:14px;padding:20px;margin-bottom:16px;box-shadow:0 2px 8px rgba(45,8,69,.1)}
+.chart-container h3{font-size:14px;font-weight:700;margin-bottom:16px;color:var(--p1)}
+
+/* ─── USERS TABLE ─── */
+.users-table{width:100%;background:#fff;border-radius:14px;border-collapse:collapse;box-shadow:0 2px 8px rgba(45,8,69,.1)}
+.users-table thead{background:#f8f4ff;border-bottom:1px solid #e5dff0}
+.users-table th{padding:12px 14px;text-align:left;font-size:12px;font-weight:700;color:var(--p2);text-transform:uppercase;letter-spacing:.05em}
+.users-table td{padding:14px;border-bottom:1px solid #f5f0ff;font-size:13px}
+.users-table tbody tr:hover{background:#faf5ff}
+.users-table .user-name{font-weight:600;color:var(--p1)}
+.users-table .user-email{color:var(--muted);font-size:12px}
+.user-badge{display:inline-block;padding:4px 10px;border-radius:12px;font-size:11px;font-weight:600}
+.badge-high{background:#dbeafe;color:#1e40af}
+.badge-mid{background:#fef3c7;color:#b45309}
+.badge-low{background:#dbeafe;color:#7c2d12}
+
+.action-btns{display:flex;gap:6px}
+.action-btns button{padding:6px 10px;font-size:11px;border:none;border-radius:6px;cursor:pointer;font-weight:600}
+.btn-add-stamp{background:#dbeafe;color:#1e40af}
+.btn-remove-stamp{background:#fee2e2;color:#991b1b}
+.btn-delete{background:#fee2e2;color:#991b1b}
+
+/* ─── FORMS ─── */
+.form-card{background:#fff;border-radius:14px;padding:20px;box-shadow:0 2px 8px rgba(45,8,69,.1);margin-bottom:16px}
+.form-card h3{font-size:14px;font-weight:700;margin-bottom:16px;color:var(--p1)}
+
+.form-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:12px}
+.form-row.full{grid-template-columns:1fr}
+
+.form-group{margin-bottom:12px}
+.form-group label{display:block;font-size:12px;font-weight:600;color:var(--p2);margin-bottom:4px}
+.form-group input,.form-group select{width:100%;padding:8px 10px;border:1px solid #e5dff0;border-radius:6px;font-size:13px;font-family:inherit}
+.form-group input:focus,.form-group select:focus{outline:none;border-color:var(--p3);background:#fff}
+
+.btn-group{display:flex;gap:8px;margin-top:16px}
+.btn-group button{flex:1;padding:10px;border:none;border-radius:8px;font-weight:600;font-size:13px;cursor:pointer}
+.btn-primary{background:linear-gradient(135deg,var(--p3),var(--p4));color:#fff}
+.btn-secondary{background:#f3e8ff;color:var(--p3)}
+
+/* ─── REWARDS ─── */
+.rewards-list{list-style:none}
+.reward-item{background:#fff;border-radius:12px;padding:14px;margin-bottom:10px;border-left:4px solid var(--gold)}
+.reward-item strong{color:var(--p1);display:block;margin-bottom:4px}
+.reward-item small{color:var(--muted)}
+
+/* ─── MODAL ─── */
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);align-items:center;justify-content:center;z-index:1000}
+.modal.open{display:flex}
+.modal-content{background:#fff;border-radius:16px;padding:24px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto}
+.modal-content h2{font-size:18px;font-weight:700;margin-bottom:14px;color:var(--p1)}
+.modal-content p{color:var(--muted);margin-bottom:14px;font-size:13px}
+.close-modal{position:absolute;top:16px;right:16px;background:none;border:none;font-size:24px;cursor:pointer;color:var(--muted)}
+
+/* ─── LOADING ─── */
+.loading{text-align:center;padding:40px;color:var(--muted)}
+.spinner{display:inline-block;width:20px;height:20px;border:2px solid #e5dff0;border-top-color:var(--p3);border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.empty-state{text-align:center;padding:40px 20px;color:var(--muted)}
+.empty-state h3{font-size:16px;color:var(--p1);margin-bottom:6px}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:768px){
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .admin-nav{flex-wrap:wrap}
+  .nav-btn{flex:0 1 auto}
+  .users-table{font-size:12px}
+  .users-table th,.users-table td{padding:10px}
+}
+</style>
+</head>
+<body>
+
+<!-- ════════ LOGIN ════════ -->
+<div id="login-screen">
+  <div class="login-card">
+    <h1>🫐 Jim's Açaí</h1>
+    <p>Admin Dashboard</p>
+    
+    <div class="form-group">
+      <label>Admin Username</label>
+      <input id="admin-username" type="text" placeholder="Enter admin username" autocomplete="username"/>
+    </div>
+    
+    <div class="form-group">
+      <label>Admin Code</label>
+      <input id="admin-password" type="password" placeholder="Enter admin code" autocomplete="current-password"/>
+    </div>
+    
+    <button class="btn btn-primary" onclick="adminLogin()">Login</button>
+    <button class="btn btn-secondary" onclick="showRegisterAdmin()">New Admin Account</button>
+  </div>
+</div>
+
+<!-- ════════ ADMIN DASHBOARD ════════ -->
+<div id="admin-screen">
+  <div class="admin-header">
+    <h1>🫐 Admin Dashboard</h1>
+    <button class="btn-logout" onclick="adminLogout()">Logout</button>
+  </div>
+
+  <div class="admin-nav">
+    <button class="nav-btn active" onclick="switchTab('dashboard')">📊 Dashboard</button>
+    <button class="nav-btn" onclick="switchTab('customers')">👥 Customers</button>
+    <button class="nav-btn" onclick="switchTab('rewards')">🎁 Rewards</button>
+    <button class="nav-btn" onclick="switchTab('reports')">📈 Reports</button>
+    <button class="nav-btn" onclick="switchTab('settings')">⚙️ Settings</button>
+  </div>
+
+  <div class="admin-body">
+    <!-- Dashboard Tab -->
+    <div class="tab-panel active" id="tab-dashboard">
+      <h2 style="font-size:20px;margin-bottom:20px;color:var(--p1)">Dashboard</h2>
+      
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3>Total Customers</h3>
+          <div class="value" id="stat-customers">0</div>
+        </div>
+        <div class="stat-card">
+          <h3>Total Stamps Issued</h3>
+          <div class="value" id="stat-stamps">0</div>
+        </div>
+        <div class="stat-card">
+          <h3>Rewards Redeemed</h3>
+          <div class="value" id="stat-rewards">0</div>
+        </div>
+        <div class="stat-card">
+          <h3>Total Visits</h3>
+          <div class="value" id="stat-visits">0</div>
+        </div>
+      </div>
+
+      <div class="chart-container">
+        <h3>Recent Activity</h3>
+        <div id="recent-activity" style="min-height:150px;display:flex;align-items:center;justify-content:center;color:var(--muted)">
+          <div class="empty-state"><h3>No activity yet</h3></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Customers Tab -->
+    <div class="tab-panel" id="tab-customers">
+      <h2 style="font-size:20px;margin-bottom:20px;color:var(--p1)">Manage Customers</h2>
+      
+      <div style="margin-bottom:20px;">
+        <input type="text" id="search-customers" placeholder="Search by name or email..." style="width:100%;padding:10px 12px;border:1px solid #e5dff0;border-radius:8px;font-size:13px;" oninput="filterCustomers()"/>
+      </div>
+
+      <div style="overflow-x:auto">
+        <table class="users-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Stamps</th>
+              <th>Visits</th>
+              <th>Rewards</th>
+              <th>Joined</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="customers-list">
+            <tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted)">Loading customers...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Rewards Tab -->
+    <div class="tab-panel" id="tab-rewards">
+      <h2 style="font-size:20px;margin-bottom:20px;color:var(--p1)">Rewards Management</h2>
+      
+      <div class="form-card">
+        <h3>Add Reward Promotion</h3>
+        <div class="form-row full">
+          <div class="form-group">
+            <label>Reward Name</label>
+            <input id="reward-name" type="text" placeholder="e.g., Large Açaí Bowl" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Stamps Required</label>
+            <input id="reward-stamps" type="number" placeholder="e.g., 9" value="9" />
+          </div>
+          <div class="form-group">
+            <label>Value ($)</label>
+            <input id="reward-value" type="number" placeholder="e.g., 15" />
+          </div>
+        </div>
+        <div class="form-row full">
+          <div class="form-group">
+            <label>Description</label>
+            <input id="reward-desc" type="text" placeholder="Reward description" />
+          </div>
+        </div>
+        <div class="btn-group">
+          <button class="btn-primary" onclick="addReward()">Add Reward</button>
+        </div>
+      </div>
+
+      <div style="margin-top:24px;">
+        <h3 style="color:var(--p1);margin-bottom:12px">Active Rewards</h3>
+        <ul class="rewards-list" id="rewards-list">
+          <li class="reward-item"><strong>Large Açaí Bowl</strong><br><small>9 stamps • Worth $15</small></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Reports Tab -->
+    <div class="tab-panel" id="tab-reports">
+      <h2 style="font-size:20px;margin-bottom:20px;color:var(--p1)">Reports & Analytics</h2>
+      
+      <div class="form-card">
+        <h3>Generate Report</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Report Type</label>
+            <select id="report-type">
+              <option>Customer Summary</option>
+              <option>Stamp Issuance</option>
+              <option>Reward Redemption</option>
+              <option>Visit History</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Date Range</label>
+            <select id="report-range">
+              <option>Last 7 days</option>
+              <option>Last 30 days</option>
+              <option>Last 90 days</option>
+              <option>All time</option>
+            </select>
+          </div>
+        </div>
+        <div class="btn-group">
+          <button class="btn-primary" onclick="generateReport()">Generate Report</button>
+          <button class="btn-secondary" onclick="exportCSV()">Export CSV</button>
+        </div>
+      </div>
+
+      <div class="chart-container" style="margin-top:20px;">
+        <h3>Customer Growth</h3>
+        <div id="growth-chart" style="height:200px;background:#f9fafb;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--muted)">
+          Chart will appear here
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings Tab -->
+    <div class="tab-panel" id="tab-settings">
+      <h2 style="font-size:20px;margin-bottom:20px;color:var(--p1)">Settings</h2>
+      
+      <div class="form-card">
+        <h3>Admin Settings</h3>
+        <div class="form-row full">
+          <div class="form-group">
+            <label>Store Name</label>
+            <input id="store-name" type="text" placeholder="Your store name" value="Jim's Açaí" />
+          </div>
+        </div>
+        <div class="form-row full">
+          <div class="form-group">
+            <label>Admin Code</label>
+            <input id="store-code" type="text" placeholder="Code customers use to link" readonly />
+          </div>
+        </div>
+        <div class="form-row full">
+          <div class="form-group">
+            <label>Stamps per Purchase</label>
+            <input id="stamps-per-purchase" type="number" placeholder="e.g., 1" value="1" />
+          </div>
+        </div>
+        <div class="form-row full">
+          <div class="form-group">
+            <label>Stamps for Free Reward</label>
+            <input id="stamps-for-reward" type="number" placeholder="e.g., 9" value="9" />
+          </div>
+        </div>
+        <div class="btn-group">
+          <button class="btn-primary" onclick="saveSettings()">Save Settings</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ MODALS ════════ -->
+<div class="modal" id="modal-register">
+  <div class="modal-content">
+    <button class="close-modal" onclick="closeModal('register')">&times;</button>
+    <h2>Create Admin Account</h2>
+    <p>Set up a new admin account to manage your store</p>
+    
+    <div class="form-group">
+      <label>Store Name</label>
+      <input id="new-store-name" type="text" placeholder="Your store name" />
+    </div>
+    
+    <div class="form-group">
+      <label>Admin Username</label>
+      <input id="new-admin-username" type="text" placeholder="Create username" />
+    </div>
+    
+    <div class="form-group">
+      <label>Admin Code</label>
+      <input id="new-admin-code" type="password" placeholder="Create secure code" />
+    </div>
+    
+    <div class="form-group">
+      <label>Email</label>
+      <input id="new-admin-email" type="email" placeholder="Admin email" />
+    </div>
+    
+    <div class="btn-group">
+      <button class="btn-primary" onclick="registerAdmin()">Create Account</button>
+      <button class="btn-secondary" onclick="closeModal('register')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="modal-edit-customer">
+  <div class="modal-content">
+    <button class="close-modal" onclick="closeModal('edit-customer')">&times;</button>
+    <h2>Manage Customer</h2>
+    
+    <div class="form-group">
+      <label>Name</label>
+      <input id="edit-name" type="text" readonly />
+    </div>
+    
+    <div class="form-group">
+      <label>Email</label>
+      <input id="edit-email" type="email" readonly />
+    </div>
+    
+    <div class="form-group">
+      <label>Stamps</label>
+      <input id="edit-stamps" type="number" min="0" max="9" />
+    </div>
+    
+    <div class="form-group">
+      <label>Visits</label>
+      <input id="edit-visits" type="number" min="0" />
+    </div>
+    
+    <div class="form-group">
+      <label>Rewards Redeemed</label>
+      <input id="edit-rewards" type="number" min="0" />
+    </div>
+    
+    <div class="btn-group">
+      <button class="btn-primary" onclick="saveCustomerChanges()">Save Changes</button>
+      <button class="btn-secondary" onclick="closeModal('edit-customer')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════════
+   STATE
+════════════════════════════════ */
+let CURRENT_ADMIN = null;
+let ADMIN_DATA = null;
+let CUSTOMERS = [];
+let FILTERED_CUSTOMERS = [];
+let CURRENT_EDIT_CUSTOMER = null;
+
+// Check if already logged in
+window.addEventListener('load', function(){
+  var saved = localStorage.getItem('jims_admin');
+  if(saved){
+    try{
+      CURRENT_ADMIN = JSON.parse(saved);
+      showAdminDashboard();
+      loadCustomers();
+    }catch(e){}
+  }
+});
+
+/* ════════════════════════════════
+   LOGIN / REGISTER
+════════════════════════════════ */
+function showRegisterAdmin(){
+  document.getElementById('modal-register').classList.add('open');
+}
+
+async function adminLogin(){
+  var username = document.getElementById('admin-username').value.trim();
+  var code = document.getElementById('admin-password').value.trim();
+  
+  if(!username || !code){
+    alert('Please enter username and admin code');
+    return;
+  }
+  
+  // Check in Firebase for admin
+  try{
+    var q = window.fbQuery(window.fbCollection(window.fbDB, 'admins'), 
+      window.fbWhere('username', '==', username),
+      window.fbWhere('code', '==', code)
+    );
+    var snapshot = await window.fbGetDocs(q);
+    
+    if(snapshot.empty){
+      alert('Invalid username or code');
+      return;
+    }
+    
+    var doc = snapshot.docs[0];
+    CURRENT_ADMIN = doc.data();
+    CURRENT_ADMIN.firebaseId = doc.id;
+    localStorage.setItem('jims_admin', JSON.stringify(CURRENT_ADMIN));
+    
+    showAdminDashboard();
+    loadCustomers();
+  }catch(e){
+    // Fallback: Check demo admin
+    if(username === 'admin' && code === '1234'){
+      CURRENT_ADMIN = {
+        username: 'admin',
+        storeName: 'Demo Store',
+        code: 'DEMO123',
+        email: 'admin@jimsacai.com'
+      };
+      localStorage.setItem('jims_admin', JSON.stringify(CURRENT_ADMIN));
+      showAdminDashboard();
+      loadCustomers();
+    } else {
+      alert('Login failed: ' + e.message);
+    }
+  }
+}
+
+async function registerAdmin(){
+  var storeName = document.getElementById('new-store-name').value.trim();
+  var username = document.getElementById('new-admin-username').value.trim();
+  var code = document.getElementById('new-admin-code').value.trim();
+  var email = document.getElementById('new-admin-email').value.trim();
+  
+  if(!storeName || !username || !code || !email){
+    alert('Please fill in all fields');
+    return;
+  }
+  
+  try{
+    var docRef = await window.fbAddDoc(window.fbCollection(window.fbDB, 'admins'), {
+      storeName: storeName,
+      username: username,
+      code: code,
+      email: email,
+      createdAt: new Date().toISOString(),
+      storeCode: 'STORE' + Math.random().toString(36).substr(2, 9).toUpperCase()
+    });
+    
+    alert('Admin account created! You can now login.');
+    document.getElementById('admin-username').value = username;
+    document.getElementById('admin-password').value = code;
+    closeModal('register');
+  }catch(e){
+    alert('Error creating admin account: ' + e.message);
+  }
+}
+
+function adminLogout(){
+  if(confirm('Logout?')){
+    CURRENT_ADMIN = null;
+    localStorage.removeItem('jims_admin');
+    document.getElementById('admin-screen').classList.remove('active');
+    document.getElementById('login-screen').classList.remove('hidden');
+    document.getElementById('admin-username').value = '';
+    document.getElementById('admin-password').value = '';
+  }
+}
+
+/* ════════════════════════════════
+   SHOW/HIDE SCREENS
+════════════════════════════════ */
+function showAdminDashboard(){
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('admin-screen').classList.add('active');
+  updateDashboardStats();
+}
+
+/* ════════════════════════════════
+   TABS
+════════════════════════════════ */
+function switchTab(tab){
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  event.target.classList.add('active');
+  
+  if(tab === 'dashboard') updateDashboardStats();
+  if(tab === 'customers') loadCustomers();
+}
+
+/* ════════════════════════════════
+   CUSTOMERS
+════════════════════════════════ */
+async function loadCustomers(){
+  try{
+    var snapshot = await window.fbGetDocs(window.fbCollection(window.fbDB, 'customers'));
+    CUSTOMERS = [];
+    snapshot.forEach(doc => {
+      CUSTOMERS.push({...doc.data(), firebaseId: doc.id});
+    });
+    FILTERED_CUSTOMERS = CUSTOMERS;
+    renderCustomersTable();
+  }catch(e){
+    console.log('Error loading customers:', e);
+  }
+}
+
+function renderCustomersTable(){
+  var tbody = document.getElementById('customers-list');
+  if(FILTERED_CUSTOMERS.length === 0){
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted)">No customers found</td></tr>';
+    return;
+  }
+  
+  tbody.innerHTML = FILTERED_CUSTOMERS.map(c => `
+    <tr>
+      <td><span class="user-name">${c.name}</span><br><span class="user-email">${c.email}</span></td>
+      <td>${c.email}</td>
+      <td><span class="user-badge badge-high">${c.stamps} / 9</span></td>
+      <td>${c.visits}</td>
+      <td>${c.rewards}</td>
+      <td>${c.joined}</td>
+      <td>
+        <div class="action-btns">
+          <button class="btn-add-stamp" onclick="editCustomer('${c.firebaseId}', '${c.name}', '${c.email}', ${c.stamps}, ${c.visits}, ${c.rewards})">Edit</button>
+          <button class="btn-remove-stamp" onclick="deleteCustomer('${c.firebaseId}')">Delete</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function filterCustomers(){
+  var search = document.getElementById('search-customers').value.toLowerCase();
+  FILTERED_CUSTOMERS = CUSTOMERS.filter(c => 
+    c.name.toLowerCase().includes(search) || 
+    c.email.toLowerCase().includes(search)
+  );
+  renderCustomersTable();
+}
+
+function editCustomer(id, name, email, stamps, visits, rewards){
+  CURRENT_EDIT_CUSTOMER = id;
+  document.getElementById('edit-name').value = name;
+  document.getElementById('edit-email').value = email;
+  document.getElementById('edit-stamps').value = stamps;
+  document.getElementById('edit-visits').value = visits;
+  document.getElementById('edit-rewards').value = rewards;
+  document.getElementById('modal-edit-customer').classList.add('open');
+}
+
+async function saveCustomerChanges(){
+  var stamps = parseInt(document.getElementById('edit-stamps').value);
+  var visits = parseInt(document.getElementById('edit-visits').value);
+  var rewards = parseInt(document.getElementById('edit-rewards').value);
+  
+  try{
+    await window.fbUpdateDoc(window.fbDoc(window.fbDB, 'customers', CURRENT_EDIT_CUSTOMER), {
+      stamps: stamps,
+      visits: visits,
+      rewards: rewards
+    });
+    closeModal('edit-customer');
+    loadCustomers();
+  }catch(e){
+    alert('Error saving changes: ' + e.message);
+  }
+}
+
+async function deleteCustomer(id){
+  if(!confirm('Are you sure you want to delete this customer?')) return;
+  try{
+    await window.fbDeleteDoc(window.fbDoc(window.fbDB, 'customers', id));
+    loadCustomers();
+  }catch(e){
+    alert('Error deleting customer: ' + e.message);
+  }
+}
+
+/* ════════════════════════════════
+   DASHBOARD STATS
+════════════════════════════════ */
+function updateDashboardStats(){
+  var totalCustomers = CUSTOMERS.length;
+  var totalStamps = CUSTOMERS.reduce((sum, c) => sum + c.stamps, 0);
+  var totalRewards = CUSTOMERS.reduce((sum, c) => sum + c.rewards, 0);
+  var totalVisits = CUSTOMERS.reduce((sum, c) => sum + c.visits, 0);
+  
+  document.getElementById('stat-customers').textContent = totalCustomers;
+  document.getElementById('stat-stamps').textContent = totalStamps;
+  document.getElementById('stat-rewards').textContent = totalRewards;
+  document.getElementById('stat-visits').textContent = totalVisits;
+}
+
+/* ════════════════════════════════
+   REWARDS
+════════════════════════════════ */
+function addReward(){
+  var name = document.getElementById('reward-name').value.trim();
+  var stamps = document.getElementById('reward-stamps').value;
+  var value = document.getElementById('reward-value').value;
+  var desc = document.getElementById('reward-desc').value.trim();
+  
+  if(!name || !stamps || !value){
+    alert('Please fill in all fields');
+    return;
+  }
+  
+  var list = document.getElementById('rewards-list');
+  var item = document.createElement('li');
+  item.className = 'reward-item';
+  item.innerHTML = `<strong>${name}</strong><br><small>${stamps} stamps • Worth $${value}</small>`;
+  list.appendChild(item);
+  
+  document.getElementById('reward-name').value = '';
+  document.getElementById('reward-stamps').value = '9';
+  document.getElementById('reward-value').value = '';
+  document.getElementById('reward-desc').value = '';
+}
+
+/* ════════════════════════════════
+   REPORTS
+════════════════════════════════ */
+function generateReport(){
+  alert('Report generated! (feature coming soon)');
+}
+
+function exportCSV(){
+  var csv = 'Name,Email,Stamps,Visits,Rewards,Joined\n';
+  CUSTOMERS.forEach(c => {
+    csv += `"${c.name}","${c.email}",${c.stamps},${c.visits},${c.rewards},"${c.joined}"\n`;
+  });
+  
+  var blob = new Blob([csv], {type: 'text/csv'});
+  var url = window.URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'customers_' + new Date().toISOString().split('T')[0] + '.csv';
+  a.click();
+}
+
+/* ════════════════════════════════
+   SETTINGS
+════════════════════════════════ */
+function saveSettings(){
+  var storeName = document.getElementById('store-name').value.trim();
+  alert('Settings saved! (Store: ' + storeName + ')');
+}
+
+/* ════════════════════════════════
+   MODALS
+════════════════════════════════ */
+function closeModal(id){
+  document.getElementById('modal-' + id).classList.remove('open');
+}
+</script>
+</body>
+</html>

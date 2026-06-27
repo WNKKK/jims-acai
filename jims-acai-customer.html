@@ -12,6 +12,34 @@
 <link rel="manifest" href="data:application/json,{&quot;name&quot;:&quot;Jim's Açaí Rewards&quot;,&quot;short_name&quot;:&quot;Jim's Açaí&quot;,&quot;display&quot;:&quot;standalone&quot;,&quot;background_color&quot;:&quot;#2d0845&quot;,&quot;theme_color&quot;:&quot;#2d0845&quot;}"/>
 <title>Jim's Açaí Rewards</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.5/JsBarcode.all.min.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-analytics.js";
+import { getFirestore, collection, addDoc, query, where, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCkBdFLQBpr9TjbPyEtxRO9ztimgTlzzJY",
+  authDomain: "jims-acai-rewards.firebaseapp.com",
+  projectId: "jims-acai-rewards",
+  storageBucket: "jims-acai-rewards.firebasestorage.app",
+  messagingSenderId: "766100315950",
+  appId: "1:766100315950:web:aa4ad09d8f5ab6d036a4bf",
+  measurementId: "G-DXMDH0695D"
+};
+
+const app = initializeApp(firebaseConfig);
+try{ getAnalytics(app); }catch(e){}
+const db = getFirestore(app);
+
+window.fbDB = db;
+window.fbCollection = collection;
+window.fbAddDoc = addDoc;
+window.fbQuery = query;
+window.fbWhere = where;
+window.fbGetDocs = getDocs;
+window.fbDoc = doc;
+window.fbUpdateDoc = updateDoc;
+</script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -665,7 +693,7 @@ function obNext(){
 /* ════════════════════════════════
    REGISTER
 ════════════════════════════════ */
-function register(){
+async function register(){
   var first = document.getElementById('r-first').value.trim();
   var last  = document.getElementById('r-last').value.trim();
   var email = document.getElementById('r-email').value.trim();
@@ -676,11 +704,37 @@ function register(){
     firstName: first, lastName: last,
     name: first+(last?' '+last:''),
     email: email, phone: phone||null,
+    adminCode: null,
     stamps: 0, visits: 0, rewards: 0,
     joined: new Date().toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'}),
+    joinedTimestamp: new Date().toISOString(),
     history: []
   };
   saveM();
+
+  // Save to Firebase if available
+  try{
+    if(window.fbDB && window.fbAddDoc && window.fbCollection){
+      await window.fbAddDoc(window.fbCollection(window.fbDB, 'customers'), {
+        id: M.id,
+        firstName: M.firstName,
+        lastName: M.lastName,
+        name: M.name,
+        email: M.email,
+        phone: M.phone,
+        adminCode: M.adminCode,
+        stamps: M.stamps,
+        visits: M.visits,
+        rewards: M.rewards,
+        joined: M.joined,
+        joinedTimestamp: M.joinedTimestamp,
+        history: M.history
+      });
+    }
+  }catch(e){
+    console.log('Firebase save error:', e.message);
+  }
+
   show('home'); renderHome();
   document.getElementById('ni-home').classList.add('on');
 }
