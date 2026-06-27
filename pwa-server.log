@@ -1,0 +1,31 @@
+Starting up http-server, serving .
+
+http-server version: 14.1.1
+
+http-server settings: 
+CORS: disabled
+Cache: -1 seconds
+Connection Timeout: 120 seconds
+Directory Listings: visible
+AutoIndex: visible
+Serve GZIP Files: false
+Serve Brotli Files: false
+Default File Extension: none
+
+Available on:
+  http://192.168.0.136:8090
+  http://127.0.0.1:8090
+Hit CTRL-C to stop the server
+
+[2026-06-20T01:40:11.290Z]  "GET /" "Mozilla/5.0 (Windows NT; Windows NT 10.0; en-AU) WindowsPowerShell/5.1.26100.8521"
+[2026-06-20T01:40:11.298Z]  "GET /manifest.webmanifest" "Mozilla/5.0 (Windows NT; Windows NT 10.0; en-AU) WindowsPowerShell/5.1.26100.8521"
+[2026-06-20T01:40:11.320Z]  "GET /sw.js" "Mozilla/5.0 (Windows NT; Windows NT 10.0; en-AU) WindowsPowerShell/5.1.26100.8521"
+[2026-06-20T01:40:11.568Z]  "GET /qr-poster.html" "Mozilla/5.0 (Windows NT; Windows NT 10.0; en-AU) WindowsPowerShell/5.1.26100.8521"
+[2026-06-20T01:40:11.571Z]  "GET /qr-poster.html" Error (404): "Not found"
+[2026-06-20T01:40:32.656Z]  "GET /" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36"
+[2026-06-20T01:40:32.861Z]  "GET /jims-acai-customer.html" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36"
+[2026-06-20T01:40:32.868Z]  "GET /manifest.webmanifest" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36"
+[2026-06-20T01:40:32.870Z]  "GET /icon.svg" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36"
+[2026-06-20T01:40:32.914Z]  "GET /manifest.webmanifest" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36"
+[2026-06-20T01:40:33.116Z]  "GET /icon.svg" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36"
+[2026-06-20T01:41:01.139Z]  "GET /qr-poster.html" "Mozilla/5.0 (Windows NT; Windows NT 10.0; en-AU) WindowsPowerShell/5.1.26100.8521"

@@ -1,0 +1,19 @@
+{
+  "name": "Jim's Acai Rewards",
+  "short_name": "Jim's Acai",
+  "description": "Customer rewards card for Jim's Acai.",
+  "start_url": "./jims-acai-customer.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#2d0845",
+  "theme_color": "#2d0845",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Jim's Açaí"/>
+<meta name="application-name" content="Jim's Açaí"/>
+<meta name="theme-color" content="#2d0845"/>
+<link rel="manifest" href="data:application/json,{&quot;name&quot;:&quot;Jim's Açaí Rewards&quot;,&quot;short_name&quot;:&quot;Jim's Açaí&quot;,&quot;display&quot;:&quot;standalone&quot;,&quot;background_color&quot;:&quot;#2d0845&quot;,&quot;theme_color&quot;:&quot;#2d0845&quot;}"/>
+<title>Jim's Açaí Rewards</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.5/JsBarcode.all.min.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-analytics.js";
+import { getFirestore, collection, addDoc, query, where, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCkBdFLQBpr9TjbPyEtxRO9ztimgTlzzJY",
+  authDomain: "jims-acai-rewards.firebaseapp.com",
+  projectId: "jims-acai-rewards",
+  storageBucket: "jims-acai-rewards.firebasestorage.app",
+  messagingSenderId: "766100315950",
+  appId: "1:766100315950:web:aa4ad09d8f5ab6d036a4bf",
+  measurementId: "G-DXMDH0695D"
+};
+
+const app = initializeApp(firebaseConfig);
+try{ getAnalytics(app); }catch(e){}
+const db = getFirestore(app);
+
+window.fbDB = db;
+window.fbCollection = collection;
+window.fbAddDoc = addDoc;
+window.fbQuery = query;
+window.fbWhere = where;
+window.fbGetDocs = getDocs;
+window.fbDoc = doc;
+window.fbUpdateDoc = updateDoc;
+</script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --p1:#2d0845;--p2:#4a1070;--p3:#6b1a9a;--p4:#9333ea;
+  --gold:#c9a227;--gold-l:#e8c55a;--gold-d:#a07c10;
+  --off:#f8f4ff;--muted:#9b7fc0;--text:#1a0929;
+  --success:#16a34a;--success-bg:#f0fdf4;
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bot:env(safe-area-inset-bottom,0px);
+}
+html,body{height:100%;width:100%;background:var(--p1);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow:hidden;color:var(--text);-webkit-tap-highlight-color:transparent}
+
+/* ─── SCREENS ─── */
+.screen{display:none;position:fixed;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+.screen.active{display:flex;flex-direction:column}
+
+/* ─── SPLASH ─── */
+#sc-splash{background:linear-gradient(160deg,var(--p1) 0%,var(--p2) 50%,var(--p3) 100%);align-items:center;justify-content:center}
+.splash-inner{text-align:center;animation:fadeUp .9s ease both}
+.sp-emoji{font-size:72px;display:block;margin-bottom:16px}
+.sp-word{font-size:58px;font-weight:800;color:var(--gold-l);letter-spacing:-2.5px;line-height:1}
+.sp-tag{font-size:11px;letter-spacing:.28em;color:rgba(232,197,90,.5);text-transform:uppercase;margin-top:6px}
+.sp-dots{display:flex;gap:7px;justify-content:center;margin-top:52px}
+.sp-dot{width:6px;height:6px;border-radius:50%;background:rgba(232,197,90,.22)}
+.sp-dot.on{background:var(--gold-l);animation:blink 1s ease infinite}
+@keyframes blink{0%,100%{opacity:.3}50%{opacity:1}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pop{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes stampBounce{0%{transform:scale(1)}45%{transform:scale(1.55)}75%{transform:scale(.9)}100%{transform:scale(1)}}
+
+/* ─── ONBOARDING ─── */
+#sc-onboard{background:var(--off)}
+.ob-pages{display:flex;transition:transform .4s cubic-bezier(.4,0,.2,1);width:300%;will-change:transform}
+.ob-page{width:33.333%;flex-shrink:0;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 28px 150px;text-align:center}
+.ob-visual{width:190px;height:190px;border-radius:36px;margin:0 auto 30px;display:flex;align-items:center;justify-content:center;font-size:80px}
+.ob-v1{background:linear-gradient(135deg,#f3e8ff,#e9d5ff)}
+.ob-v2{background:linear-gradient(135deg,#fef3c7,#fde68a)}
+.ob-v3{background:linear-gradient(135deg,#d1fae5,#a7f3d0)}
+.ob-title{font-size:26px;font-weight:700;color:var(--p1);line-height:1.2;margin-bottom:12px}
+.ob-body{font-size:15px;color:#6b5888;line-height:1.65}
+.ob-footer{position:fixed;bottom:0;left:0;right:0;padding:16px 22px calc(14px + var(--safe-bot));background:var(--off);border-top:1px solid rgba(107,26,154,.08)}
+.ob-dots{display:flex;gap:5px;justify-content:center;margin-bottom:14px}
+.ob-dot{width:6px;height:6px;border-radius:3px;background:#d8cfed;transition:all .3s}
+.ob-dot.on{width:22px;background:var(--p3)}
+
+/* ─── BUTTONS ─── */
+.btn{display:block;width:100%;padding:15px;font-size:16px;font-weight:600;border:none;border-radius:50px;cursor:pointer;transition:opacity .15s,transform .1s;letter-spacing:.01em;text-align:center}
+.btn:active{transform:scale(.975);opacity:.88}
+.btn-purple{background:var(--p3);color:#fff}
+.btn-gold{background:linear-gradient(135deg,var(--gold) 0%,var(--gold-l) 100%);color:var(--p1)}
+.btn-ghost{background:transparent;color:var(--muted);font-size:14px;padding:12px}
+.btn-sm{padding:9px 20px;font-size:13px;font-weight:600;border:none;border-radius:50px;cursor:pointer;display:inline-block}
+
+/* ─── REGISTER ─── */
+#sc-register{background:var(--off)}
+.rh{background:linear-gradient(160deg,var(--p1),var(--p2));padding:calc(26px + var(--safe-top)) 22px 34px;text-align:center;color:#fff}
+.rh-icon{font-size:44px;margin-bottom:12px}
+.rh h1{font-size:24px;font-weight:700;margin-bottom:7px}
+.rh p{font-size:14px;color:rgba(255,255,255,.58);line-height:1.55}
+.rb{padding:20px 18px calc(24px + var(--safe-bot));flex:1}
+.form-card{background:#fff;border-radius:22px;padding:22px;box-shadow:0 4px 28px rgba(45,8,69,.08)}
+.fg{margin-bottom:14px}
+.fg label{display:block;font-size:11px;font-weight:700;color:var(--p2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px}
+.fg input{width:100%;padding:13px 15px;border:1.5px solid #e5dff0;border-radius:13px;font-size:15px;color:var(--text);outline:none;background:#faf8ff;transition:border-color .2s;-webkit-appearance:none}
+.fg input:focus{border-color:var(--p3);background:#fff}
+.fg-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.terms{font-size:12px;color:#9b7fc0;text-align:center;margin:14px 0;line-height:1.55}
+.terms a{color:var(--p3);text-decoration:none}
+
+/* ─── HOME ─── */
+#sc-home{background:var(--off);padding-bottom:calc(80px + var(--safe-bot))}
+.home-hdr{background:linear-gradient(160deg,var(--p1) 0%,var(--p2) 60%,var(--p3) 100%);padding:calc(18px + var(--safe-top)) 18px 84px;position:relative;overflow:hidden}
+.home-hdr::before{content:'';position:absolute;top:-60px;right:-60px;width:230px;height:230px;border-radius:50%;background:radial-gradient(circle,rgba(201,162,39,.12),transparent 70%);pointer-events:none}
+.home-top{display:flex;justify-content:space-between;align-items:center}
+.home-greet{color:rgba(255,255,255,.62);font-size:13px}
+.home-uname{color:#fff;font-size:21px;font-weight:700;margin-top:2px}
+.h-avatar{width:44px;height:44px;border-radius:50%;background:rgba(201,162,39,.2);border:2px solid rgba(201,162,39,.45);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:var(--gold-l);cursor:pointer;flex-shrink:0}
+
+/* ─── LOYALTY CARD ─── */
+.card-wrap{margin:-30px 14px 0;position:relative;z-index:10}
+.lcard{background:linear-gradient(140deg,#3d0d5c 0%,#6b1a9a 52%,#4e1480 100%);border-radius:22px;padding:18px 18px 16px;box-shadow:0 16px 48px rgba(45,8,69,.45),0 0 0 1px rgba(201,162,39,.13);position:relative;overflow:hidden;cursor:pointer;transition:transform .18s}
+.lcard:active{transform:scale(.99)}
+.lcard::after{content:'';position:absolute;top:-44px;right:-44px;width:190px;height:190px;border-radius:50%;background:radial-gradient(circle,rgba(201,162,39,.1),transparent 70%);pointer-events:none}
+.lc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+.lc-brand{font-size:22px;font-weight:800;color:var(--gold-l);letter-spacing:-.5px}
+.lc-tag{font-size:9px;letter-spacing:.2em;color:rgba(232,197,90,.48);text-transform:uppercase;margin-top:2px}
+.lc-chip{width:36px;height:27px;border-radius:6px;background:linear-gradient(135deg,var(--gold-d),var(--gold-l));opacity:.72}
+/* barcode on card */
+.lc-bc{background:rgba(255,255,255,.95);border-radius:11px;padding:8px 10px 5px;margin-bottom:13px;text-align:center}
+.lc-bc svg{width:100%;height:44px;display:block}
+.lc-bc-num{font-size:9px;letter-spacing:.12em;color:#999;margin-top:2px;font-family:'Courier New',monospace}
+/* stamps */
+.lc-stamps-lbl{font-size:9px;letter-spacing:.1em;color:rgba(232,197,90,.52);text-transform:uppercase;margin-bottom:7px}
+.lc-stamps{display:flex;gap:4px}
+.sdot{flex:1;aspect-ratio:1;border-radius:50%;border:1.5px solid rgba(232,197,90,.2);display:flex;align-items:center;justify-content:center;font-size:10px;background:rgba(255,255,255,.04);transition:all .38s cubic-bezier(.34,1.56,.64,1);position:relative}
+.sdot.on{background:radial-gradient(circle at 35% 35%,#d47ef0,#8a1fb5);border-color:var(--gold-l);box-shadow:0 0 9px rgba(180,77,232,.42)}
+.sdot.on::after{content:'✓';position:absolute;font-size:9px;color:#fff;font-weight:700}
+.sdot.gift-empty::after{content:'🎁';font-size:9px}
+.sdot.gift-full{background:linear-gradient(135deg,var(--gold),var(--gold-l));border-color:var(--gold);box-shadow:0 0 9px rgba(201,162,39,.45)}
+.sdot.gift-full::after{content:'🎁';position:absolute;font-size:9px}
+/* card footer */
+.lc-foot{display:flex;justify-content:space-between;align-items:center;margin-top:11px}
+.lc-owner{font-size:10px;color:rgba(232,197,90,.55)}
+.lc-owner span{display:block;color:var(--gold-l);font-weight:600;font-size:12px;margin-top:1px}
+.ring-wrap{position:relative;width:38px;height:38px;flex-shrink:0}
+.ring-bg{stroke:rgba(201,162,39,.17);fill:none;stroke-width:3}
+.ring-fg{stroke:var(--gold-l);fill:none;stroke-width:3;stroke-linecap:round;transform:rotate(-90deg);transform-origin:50% 50%;transition:stroke-dashoffset .7s cubic-bezier(.4,0,.2,1)}
+.ring-lbl{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:var(--gold-l)}
+
+/* ─── HOME BODY ─── */
+.hbody{padding:14px 14px 12px}
+.sec-title{font-size:12px;font-weight:700;color:var(--p1);text-transform:uppercase;letter-spacing:.07em;margin:18px 0 9px}
+.white-card{background:#fff;border-radius:20px;padding:16px;box-shadow:0 2px 14px rgba(45,8,69,.06)}
+
+/* reward ready banner */
+.rr-banner{background:linear-gradient(135deg,#7c2db5,#a855f7);border-radius:20px;padding:15px 17px;color:#fff;display:flex;align-items:center;gap:14px;box-shadow:0 8px 28px rgba(107,26,154,.38);cursor:pointer;position:relative;overflow:hidden;margin-bottom:4px}
+.rr-banner::before{content:'';position:absolute;top:-28px;right:-28px;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,.08)}
+.rr-icon{width:50px;height:50px;border-radius:15px;background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0}
+.rr-text h3{font-size:15px;font-weight:700;margin-bottom:3px}
+.rr-text p{font-size:13px;opacity:.75}
+.rr-arrow{margin-left:auto;font-size:22px;opacity:.6;flex-shrink:0}
+
+/* progress strip */
+.prog-strip{background:#fff;border-radius:20px;padding:15px 16px;box-shadow:0 2px 14px rgba(45,8,69,.06);margin-bottom:4px}
+.prog-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.prog-lbl{font-size:14px;font-weight:600;color:var(--p1)}
+.prog-num{font-size:13px;color:var(--muted)}
+.prog-num strong{color:var(--p3);font-size:15px}
+.prog-bar{height:9px;background:#ede9f5;border-radius:6px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--p3),var(--p4));border-radius:6px;transition:width .75s cubic-bezier(.4,0,.2,1)}
+.prog-sub{font-size:12px;color:var(--muted);margin-top:8px}
+
+/* how it works */
+.how-step{display:flex;gap:13px;padding:13px 0;border-bottom:1px solid #f3eeff}
+.how-step:last-child{border-bottom:none;padding-bottom:0}
+.how-num{width:32px;height:32px;border-radius:50%;background:#f3e8ff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--p3);flex-shrink:0;margin-top:1px}
+.how-title{font-size:14px;font-weight:600;color:var(--p1);margin-bottom:3px}
+.how-body{font-size:13px;color:#6b5888;line-height:1.55}
+
+/* ─── BARCODE SCREEN ─── */
+#sc-barcode{background:var(--p1);padding-bottom:calc(20px + var(--safe-bot))}
+.bc-hdr{padding:calc(16px + var(--safe-top)) 16px 14px;display:flex;align-items:center;gap:14px;flex-shrink:0}
+.back-btn{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:24px;color:#fff;cursor:pointer;border:none;flex-shrink:0;line-height:1;padding-right:2px}
+.bc-hdr-title{font-size:17px;font-weight:600;color:#fff}
+.bc-card{margin:0 14px;background:#fff;border-radius:26px;padding:26px 18px 22px;box-shadow:0 22px 64px rgba(0,0,0,.48);text-align:center}
+.bc-brand{font-size:26px;font-weight:800;color:var(--p1);letter-spacing:-1px}
+.bc-sub{font-size:10px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase;margin-top:2px;margin-bottom:22px}
+.bc-barcode svg{width:100%;height:72px;display:block}
+.bc-code-num{font-size:12px;letter-spacing:.14em;color:#bbb;font-family:'Courier New',monospace;margin:5px 0 22px}
+.bc-divider{height:1px;background:#f0eaf8;margin:0 -2px 18px}
+.bc-st-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.09em;margin-bottom:12px}
+.bc-stamps-grid{display:flex;gap:6px;justify-content:center;margin-bottom:16px}
+.bcs{width:33px;height:33px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;border:2px solid #e9d5ff;color:#c4b5fd;background:#faf5ff;transition:all .35s cubic-bezier(.34,1.56,.64,1)}
+.bcs.on{background:linear-gradient(135deg,#9333ea,#7c2db5);border-color:#9333ea;color:#fff;box-shadow:0 3px 12px rgba(147,51,234,.3)}
+.bcs.gift{background:linear-gradient(135deg,var(--gold),var(--gold-l));border-color:var(--gold);color:var(--p1);font-size:14px}
+.bc-prog{background:#f3e8ff;border-radius:14px;padding:13px 15px;margin-bottom:15px;display:flex;justify-content:space-between;align-items:center}
+.bc-prog-l h4{font-size:13px;color:var(--p2);font-weight:600;margin-bottom:2px}
+.bc-prog-l p{font-size:11px;color:var(--muted)}
+.bc-prog-count{font-size:28px;font-weight:800;color:var(--p3);line-height:1}
+.bc-prog-sub{font-size:10px;color:var(--muted)}
+.bc-member{font-size:12px;color:var(--muted)}
+.bc-member strong{color:var(--p1)}
+/* brightness */
+.bc-bright{margin:15px 14px 0}
+.bc-bright-lbl{font-size:11px;color:rgba(255,255,255,.42);margin-bottom:6px;letter-spacing:.04em}
+.bc-bright-row{display:flex;align-items:center;gap:10px}
+.bc-bright-row span{color:rgba(255,255,255,.3)}
+.bc-bright-row input[type=range]{flex:1;accent-color:var(--gold-l);height:4px}
+
+/* ─── PROFILE ─── */
+#sc-profile{background:var(--off);padding-bottom:calc(80px + var(--safe-bot))}
+.prof-hdr{background:linear-gradient(160deg,var(--p1),var(--p2));padding:calc(20px + var(--safe-top)) 18px 38px;text-align:center;position:relative;overflow:hidden}
+.prof-hdr::before{content:'';position:absolute;top:-50px;right:-50px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(201,162,39,.1),transparent 70%)}
+.p-avatar{width:76px;height:76px;border-radius:50%;background:rgba(201,162,39,.18);border:2.5px solid rgba(201,162,39,.45);display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;color:var(--gold-l);margin:0 auto 13px}
+.p-name{font-size:22px;font-weight:700;color:#fff}
+.p-email{font-size:13px;color:rgba(255,255,255,.52);margin-top:4px}
+.p-id{font-size:10px;color:rgba(232,197,90,.45);margin-top:6px;font-family:'Courier New',monospace;letter-spacing:.1em}
+.prof-body{padding:16px 14px}
+.p-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.pstat{background:#fff;border-radius:18px;padding:15px 10px;text-align:center;box-shadow:0 2px 14px rgba(45,8,69,.06)}
+.pstat-v{font-size:26px;font-weight:700;color:var(--p3)}
+.pstat-l{font-size:11px;color:var(--muted);margin-top:3px}
+.p-section{background:#fff;border-radius:20px;margin-bottom:12px;overflow:hidden;box-shadow:0 2px 14px rgba(45,8,69,.06)}
+.p-row{display:flex;align-items:center;gap:14px;padding:15px 16px;border-bottom:1px solid #f5f0ff;cursor:pointer;transition:background .15s}
+.p-row:active{background:#faf5ff}
+.p-row:last-child{border-bottom:none}
+.p-row-icon{font-size:20px;width:36px;text-align:center;flex-shrink:0}
+.p-row-text{flex:1}
+.p-row-title{font-size:14px;font-weight:500;color:var(--p1)}
+.p-row-sub{font-size:12px;color:var(--muted);margin-top:2px}
+.p-row-arrow{font-size:18px;color:#d8cfed;flex-shrink:0}
+.signout-btn{background:none;border:1.5px solid #fde8e8;border-radius:14px;width:100%;padding:14px;font-size:14px;font-weight:600;color:#ef4444;cursor:pointer;margin-top:4px;transition:background .15s}
+.signout-btn:active{background:#fef2f2}
+
+/* ─── BOTTOM NAV ─── */
+.bnav{position:fixed;bottom:0;left:0;right:0;background:rgba(255,255,255,.97);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(107,26,154,.1);display:flex;align-items:flex-end;padding:6px 0 calc(6px + var(--safe-bot));z-index:200}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 8px;cursor:pointer;border:none;background:transparent}
+.ni-icon{font-size:22px;transition:transform .2s}
+.ni-lbl{font-size:10px;font-weight:500;color:#c4b5d4;transition:color .2s}
+.ni.on .ni-lbl{color:var(--p3);font-weight:700}
+.ni.on .ni-icon{transform:scale(1.12)}
+.scan-circle{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--p3),var(--p4));display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 4px 20px rgba(107,26,154,.48);margin-top:-24px;border:3px solid #fff;cursor:pointer}
+
+/* ─── MODALS ─── */
+.modal-bg{position:fixed;inset:0;background:rgba(22,5,50,.75);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);z-index:300;display:none;align-items:flex-end}
+.modal-bg.open{display:flex}
+.modal-bg.center{align-items:center;padding:20px}
+.sheet{width:100%;background:var(--off);border-radius:26px 26px 0 0;padding:18px 20px calc(20px + var(--safe-bot));animation:slideUp .32s cubic-bezier(.4,0,.2,1)}
+.sheet-handle{width:38px;height:4px;background:#d8cfed;border-radius:2px;margin:0 auto 20px}
+.sheet-title{font-size:20px;font-weight:700;color:var(--p1);margin-bottom:7px}
+.sheet-sub{font-size:14px;color:#6b5888;margin-bottom:18px;line-height:1.6}
+
+/* install steps */
+.inst-steps{background:#fff;border-radius:18px;margin-bottom:18px;overflow:hidden;box-shadow:0 2px 14px rgba(45,8,69,.06)}
+.ist{display:flex;align-items:flex-start;gap:13px;padding:14px 16px;border-bottom:1px solid #f5f0ff}
+.ist:last-child{border-bottom:none}
+.ist-icon{font-size:24px;width:36px;text-align:center;flex-shrink:0;margin-top:1px}
+.ist-title{font-size:14px;color:var(--p1);font-weight:600;margin-bottom:2px}
+.ist-sub{font-size:12px;color:var(--muted);line-height:1.5}
+/* platform tabs */
+.ptabs{display:flex;gap:0;border:1.5px solid #e5dff0;border-radius:14px;overflow:hidden;margin-bottom:18px}
+.ptab{flex:1;padding:10px;text-align:center;font-size:14px;font-weight:600;color:var(--muted);background:#fff;border:none;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:7px}
+.ptab.on{background:var(--p3);color:#fff}
+.ptab:first-child{border-right:1.5px solid #e5dff0}
+
+/* reward modal */
+.rw-center{background:linear-gradient(160deg,var(--p1),#5a1590);border-radius:28px;padding:32px 22px;text-align:center;width:100%;border:1.5px solid rgba(201,162,39,.28);box-shadow:0 24px 80px rgba(0,0,0,.55)}
+.rw-big{font-size:70px;display:block;margin-bottom:14px;animation:pop .45s ease}
+.rw-title{font-size:25px;font-weight:800;color:var(--gold-l);margin-bottom:8px}
+.rw-body{font-size:14px;color:rgba(255,255,255,.65);line-height:1.65;margin-bottom:22px}
+.rw-bc{background:rgba(255,255,255,.09);border-radius:16px;padding:15px 15px 11px;margin-bottom:20px}
+.rw-bc svg{width:100%;height:56px;display:block}
+.rw-bc-num{font-size:10px;letter-spacing:.13em;color:rgba(255,255,255,.42);margin-top:6px;font-family:'Courier New',monospace}
+
+/* confetti */
+.confetti-layer{position:fixed;inset:0;pointer-events:none;z-index:400;display:none}
+.cp{position:absolute;border-radius:2px;animation:fall 1.15s ease forwards;opacity:0}
+@keyframes fall{0%{opacity:1;transform:translateY(-12px) rotate(0deg) scale(1)}100%{opacity:0;transform:translateY(85vh) rotate(720deg) scale(.5)}}
+
+/* ─── UTILS ─── */
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<!-- ════════ SPLASH ════════ -->
+<div class="screen active" id="sc-splash">
+  <div class="splash-inner">
+    <span class="sp-emoji">🫐</span>
+    <div class="sp-word">Jim's</div>
+    <div class="sp-tag">Açaí · Rewards</div>
+    <div class="sp-dots">
+      <div class="sp-dot on" id="sl0"></div>
+      <div class="sp-dot" id="sl1"></div>
+      <div class="sp-dot" id="sl2"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ ONBOARDING ════════ -->
+<div class="screen" id="sc-onboard">
+  <div class="ob-pages" id="ob-pages">
+    <div class="ob-page">
+      <div class="ob-visual ob-v1">🫐</div>
+      <div class="ob-title">Every açaí counts</div>
+      <div class="ob-body">Collect a stamp with every visit. Hit 9 stamps and your next large açaí bowl is completely free — every single time.</div>
+    </div>
+    <div class="ob-page">
+      <div class="ob-visual ob-v2">📲</div>
+      <div class="ob-title">Your card, always with you</div>
+      <div class="ob-body">Add Jim's Açaí to your home screen as an app. Open at the counter, show your barcode — done in seconds.</div>
+    </div>
+    <div class="ob-page">
+      <div class="ob-visual ob-v3">🎁</div>
+      <div class="ob-title">Instant rewards</div>
+      <div class="ob-body">We track every stamp in real time. The moment you hit 9, you'll see a reward screen ready to show the team.</div>
+    </div>
+  </div>
+  <div class="ob-footer">
+    <div class="ob-dots">
+      <div class="ob-dot on" id="od0"></div>
+      <div class="ob-dot" id="od1"></div>
+      <div class="ob-dot" id="od2"></div>
+    </div>
+    <button class="btn btn-purple" id="ob-btn" onclick="obNext()">Get started</button>
+    <button class="btn btn-ghost" id="ob-skip" onclick="show('register')">Skip</button>
+  </div>
+</div>
+
+<!-- ════════ REGISTER ════════ -->
+<div class="screen" id="sc-register">
+  <div class="rh">
+    <div class="rh-icon">🫐</div>
+    <h1>Join Jim's Açaí Rewards</h1>
+    <p>Free to join. Earn a free large açaí bowl every 9 visits.</p>
+  </div>
+  <div class="rb">
+    <div class="form-card">
+      <div class="fg-row">
+        <div class="fg"><label>First name</label><input id="r-first" type="text" placeholder="Emma" autocomplete="given-name" inputmode="text"/></div>
+        <div class="fg"><label>Last name</label><input id="r-last" type="text" placeholder="Smith" autocomplete="family-name" inputmode="text"/></div>
+      </div>
+      <div class="fg"><label>Email address</label><input id="r-email" type="email" placeholder="emma@email.com" autocomplete="email" inputmode="email"/></div>
+      <div class="fg"><label>Phone (optional)</label><input id="r-phone" type="tel" placeholder="+61 400 000 000" autocomplete="tel" inputmode="tel"/></div>
+      <p class="terms">By joining you agree to our <a href="#">Terms</a> &amp; <a href="#">Privacy Policy</a>. We'll only contact you about your rewards.</p>
+      <button class="btn btn-gold" onclick="register()">Create my rewards card →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ HOME ════════ -->
+<div class="screen" id="sc-home">
+  <div class="home-hdr">
+    <div class="home-top">
+      <div>
+        <div class="home-greet" id="home-greet">Good morning,</div>
+        <div class="home-uname" id="home-uname">—</div>
+      </div>
+      <div class="h-avatar" id="home-avatar" onclick="navTo('profile')">?</div>
+    </div>
+  </div>
+
+  <!-- Card -->
+  <div class="card-wrap" onclick="navTo('barcode')">
+    <div class="lcard">
+      <div class="lc-top">
+        <div><div class="lc-brand">Jim's</div><div class="lc-tag">Açaí Rewards</div></div>
+        <div class="lc-chip"></div>
+      </div>
+      <div class="lc-bc">
+        <svg id="mini-bc"></svg>
+        <div class="lc-bc-num" id="mini-bc-num">—</div>
+      </div>
+      <div class="lc-stamps-lbl">Stamps collected</div>
+      <div class="lc-stamps" id="home-stamps"></div>
+      <div class="lc-foot">
+        <div class="lc-owner">Member<span id="home-card-name">—</span></div>
+        <div class="ring-wrap">
+          <svg viewBox="0 0 38 38" width="38" height="38">
+            <circle class="ring-bg" cx="19" cy="19" r="15"/>
+            <circle class="ring-fg" id="ring-fg" cx="19" cy="19" r="15" stroke-dasharray="94.25" stroke-dashoffset="94.25"/>
+          </svg>
+          <div class="ring-lbl" id="ring-lbl">0/9</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hbody">
+    <!-- Reward ready -->
+    <div class="rr-banner hidden" id="rr-banner" onclick="openRewardModal()">
+      <div class="rr-icon">🎁</div>
+      <div class="rr-text"><h3>Free large açaí ready!</h3><p>Tap to show your reward barcode</p></div>
+      <div class="rr-arrow">›</div>
+    </div>
+
+    <!-- Progress -->
+    <div class="prog-strip" id="prog-strip">
+      <div class="prog-top">
+        <div class="prog-lbl" id="prog-lbl">Stamps to your next reward</div>
+        <div class="prog-num"><strong id="prog-cur">0</strong>/9</div>
+      </div>
+      <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+      <div class="prog-sub" id="prog-sub">Collect 9 stamps for a free large açaí bowl</div>
+    </div>
+
+    <!-- How it works -->
+    <div class="sec-title">How it works</div>
+    <div class="white-card">
+      <div class="how-step">
+        <div class="how-num">1</div>
+        <div><div class="how-title">Show your barcode at the counter</div><div class="how-body">Tap the card above or the scan button below. Show your barcode after every purchase and we'll add your stamp.</div></div>
+      </div>
+      <div class="how-step">
+        <div class="how-num">2</div>
+        <div><div class="how-title">Watch your stamps build up</div><div class="how-body">Your card updates in real time. You always know exactly how many stamps you've collected and how many to go.</div></div>
+      </div>
+      <div class="how-step">
+        <div class="how-num">3</div>
+        <div><div class="how-title">Claim your free large açaí</div><div class="how-body">Hit 9 stamps and a reward screen appears automatically. Show it at the counter — your bowl is on us, no questions asked.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="bnav" id="bnav-home">
+    <button class="ni on" id="ni-home" onclick="navTo('home')"><span class="ni-icon">🏠</span><span class="ni-lbl">Home</span></button>
+    <button class="ni" onclick="navTo('barcode')"><div class="scan-circle">⬛</div><span class="ni-lbl" style="margin-top:5px">Scan</span></button>
+    <button class="ni" id="ni-prof-h" onclick="navTo('profile')"><span class="ni-icon">👤</span><span class="ni-lbl">Profile</span></button>
+  </nav>
+</div>
+
+<!-- ════════ BARCODE ════════ -->
+<div class="screen" id="sc-barcode">
+  <div class="bc-hdr">
+    <button class="back-btn" onclick="navTo('home')">‹</button>
+    <div class="bc-hdr-title">My card</div>
+  </div>
+  <div class="bc-card">
+    <div class="bc-brand">Jim's</div>
+    <div class="bc-sub">Açaí Rewards</div>
+    <div class="bc-barcode"><svg id="full-bc"></svg></div>
+    <div class="bc-code-num" id="full-bc-num">—</div>
+    <div class="bc-divider"></div>
+    <div class="bc-st-title">Stamps — <span id="bc-st-n">0</span> of 9</div>
+    <div class="bc-stamps-grid" id="bc-stamps-grid"></div>
+    <div class="bc-prog">
+      <div class="bc-prog-l">
+        <h4 id="bc-prog-h">Stamps until free açaí</h4>
+        <p id="bc-prog-p">Keep going!</p>
+      </div>
+      <div>
+        <div class="bc-prog-count" id="bc-prog-n">9</div>
+        <div class="bc-prog-sub">remaining</div>
+      </div>
+    </div>
+    <div class="bc-member">Member: <strong id="bc-member-name">—</strong></div>
+  </div>
+  <div class="bc-bright">
+    <div class="bc-bright-lbl">Screen brightness</div>
+    <div class="bc-bright-row">
+      <span style="font-size:15px">☀</span>
+      <input type="range" min="0.3" max="1" step="0.05" value="1" oninput="setBright(this.value)"/>
+      <span style="font-size:22px">☀</span>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ PROFILE ════════ -->
+<div class="screen" id="sc-profile">
+  <div class="prof-hdr">
+    <div class="p-avatar" id="p-avatar">?</div>
+    <div class="p-name" id="p-name">—</div>
+    <div class="p-email" id="p-email">—</div>
+    <div class="p-id" id="p-id">—</div>
+  </div>
+  <div class="prof-body">
+    <div class="p-stats">
+      <div class="pstat"><div class="pstat-v" id="ps-stamps">0</div><div class="pstat-l">Stamps</div></div>
+      <div class="pstat"><div class="pstat-v" id="ps-visits">0</div><div class="pstat-l">Visits</div></div>
+      <div class="pstat"><div class="pstat-v" id="ps-rewards">0</div><div class="pstat-l">Rewards</div></div>
+    </div>
+
+    <div class="p-section">
+      <div class="p-row" onclick="navTo('barcode')">
+        <div class="p-row-icon">⬛</div>
+        <div class="p-row-text"><div class="p-row-title">My barcode</div><div class="p-row-sub">Show at the counter to collect stamps</div></div>
+        <div class="p-row-arrow">›</div>
+      </div>
+      <div class="p-row" onclick="openInstallModal()">
+        <div class="p-row-icon">📲</div>
+        <div class="p-row-text"><div class="p-row-title">Add to Home Screen</div><div class="p-row-sub">Install as an app for instant access</div></div>
+        <div class="p-row-arrow">›</div>
+      </div>
+    </div>
+
+    <div class="p-section">
+      <div class="p-row" onclick="editProfile()">
+        <div class="p-row-icon">👤</div>
+        <div class="p-row-text"><div class="p-row-title">Account details</div><div class="p-row-sub" id="p-detail-sub">—</div></div>
+        <div class="p-row-arrow">›</div>
+      </div>
+    </div>
+
+    <button class="signout-btn" onclick="signOut()">Sign out</button>
+  </div>
+
+  <nav class="bnav">
+    <button class="ni" id="ni-home-p" onclick="navTo('home')"><span class="ni-icon">🏠</span><span class="ni-lbl">Home</span></button>
+    <button class="ni" onclick="navTo('barcode')"><div class="scan-circle">⬛</div><span class="ni-lbl" style="margin-top:5px">Scan</span></button>
+    <button class="ni on" id="ni-prof-p" onclick="navTo('profile')"><span class="ni-icon">👤</span><span class="ni-lbl">Profile</span></button>
+  </nav>
+</div>
+
+<!-- ════════ INSTALL MODAL ════════ -->
+<div class="modal-bg" id="modal-install" onclick="closeModal('install')">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Add to Home Screen</div>
+    <div class="sheet-sub">Install Jim's Açaí Rewards as an app — your card is always one tap away, even without internet.</div>
+
+    <!-- Platform tabs -->
+    <div class="ptabs">
+      <button class="ptab on" id="ptab-ios" onclick="switchPlatform('ios')">
+        <span style="font-size:18px">🍎</span> iPhone / iPad
+      </button>
+      <button class="ptab" id="ptab-and" onclick="switchPlatform('android')">
+        <span style="font-size:18px">🤖</span> Android
+      </button>
+    </div>
+
+    <!-- iOS steps -->
+    <div class="inst-steps" id="steps-ios">
+      <div class="ist">
+        <div class="ist-icon">1️⃣</div>
+        <div>
+          <div class="ist-title">Open in Safari</div>
+          <div class="ist-sub">This must be done in Safari — Chrome and other browsers don't support home screen install on iPhone.</div>
+        </div>
+      </div>
+      <div class="ist">
+        <div class="ist-icon">📤</div>
+        <div>
+          <div class="ist-title">Tap the Share button</div>
+          <div class="ist-sub">The box-with-arrow icon at the bottom centre of the Safari browser bar.</div>
+        </div>
+      </div>
+      <div class="ist">
+        <div class="ist-icon">➕</div>
+        <div>
+          <div class="ist-title">Tap "Add to Home Screen"</div>
+          <div class="ist-sub">Scroll down the share sheet. Tap "Add to Home Screen" then tap <strong>"Add"</strong> in the top-right corner.</div>
+        </div>
+      </div>
+      <div class="ist">
+        <div class="ist-icon">✅</div>
+        <div>
+          <div class="ist-title">Done! Find it on your home screen</div>
+          <div class="ist-sub">Jim's Açaí now appears as a full-screen app — no browser bar, no address bar.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Android steps -->
+    <div class="inst-steps hidden" id="steps-android">
+      <div class="ist">
+        <div class="ist-icon">1️⃣</div>
+        <div>
+          <div class="ist-title">Open in Chrome</div>
+          <div class="ist-sub">Make sure you're using Google Chrome — it has the best home screen install support on Android.</div>
+        </div>
+      </div>
+      <div class="ist">
+        <div class="ist-icon">⋮</div>
+        <div>
+          <div class="ist-title">Tap the 3-dot menu</div>
+          <div class="ist-sub">Tap the three vertical dots (⋮) in the top-right corner of Chrome.</div>
+        </div>
+      </div>
+      <div class="ist">
+        <div class="ist-icon">➕</div>
+        <div>
+          <div class="ist-title">Tap "Add to Home screen"</div>
+          <div class="ist-sub">Select "Add to Home screen" from the dropdown menu, then tap <strong>"Add"</strong> to confirm.</div>
+        </div>
+      </div>
+      <div class="ist">
+        <div class="ist-icon">✅</div>
+        <div>
+          <div class="ist-title">Done! Open from your home screen</div>
+          <div class="ist-sub">Jim's Açaí now opens as a full-screen app on your Android device — no browser needed.</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn btn-purple" onclick="closeModal('install')">Got it</button>
+  </div>
+</div>
+
+<!-- ════════ REWARD MODAL ════════ -->
+<div class="modal-bg center" id="modal-reward" onclick="closeModal('reward')">
+  <div class="rw-center" onclick="event.stopPropagation()">
+    <span class="rw-big">🎉</span>
+    <div class="rw-title">Free large açaí!</div>
+    <div class="rw-body">You've collected all 9 stamps. Show this screen to our team and your large açaí bowl is on us — enjoy!</div>
+    <div class="rw-bc">
+      <svg id="reward-bc"></svg>
+      <div class="rw-bc-num" id="reward-bc-num">—</div>
+    </div>
+    <button class="btn btn-gold" onclick="closeModal('reward')">Done</button>
+  </div>
+</div>
+
+<!-- CONFETTI -->
+<div class="confetti-layer" id="confetti-layer"></div>
+
+<script>
+/* ════════════════════════════════
+   STATE
+════════════════════════════════ */
+var M = null;
+function saveM(){ try{ localStorage.setItem('jims_m', JSON.stringify(M)); }catch(e){} }
+function loadM(){ try{ var s=localStorage.getItem('jims_m'); if(s) M=JSON.parse(s); }catch(e){} }
+loadM();
+
+/* ════════════════════════════════
+   SCREEN NAVIGATION
+════════════════════════════════ */
+var CURRENT = 'splash';
+function show(id){
+  document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+  var el = document.getElementById('sc-'+id);
+  if(el){ el.classList.add('active'); el.scrollTop = 0; }
+  CURRENT = id;
+}
+
+function navTo(id){
+  // clear all nav active states first
+  document.querySelectorAll('.ni').forEach(function(n){ n.classList.remove('on'); });
+
+  if(id === 'home'){
+    show('home');
+    renderHome();
+    document.getElementById('ni-home').classList.add('on');
+  }
+  else if(id === 'barcode'){
+    show('barcode');
+    renderBarcode();
+    // no nav tab active for barcode (it's the centre scan button)
+  }
+  else if(id === 'profile'){
+    show('profile');
+    renderProfile();
+    document.getElementById('ni-prof-h').classList.add('on');
+    document.getElementById('ni-prof-p').classList.add('on');
+  }
+}
+
+/* ════════════════════════════════
+   SPLASH
+════════════════════════════════ */
+var _sd = 0;
+var _si = setInterval(function(){
+  document.getElementById('sl'+_sd).classList.remove('on');
+  _sd = (_sd+1)%3;
+  document.getElementById('sl'+_sd).classList.add('on');
+}, 420);
+
+setTimeout(function(){
+  clearInterval(_si);
+  if(M){ show('home'); renderHome(); }
+  else  { show('onboard'); }
+}, 1900);
+
+/* ════════════════════════════════
+   ONBOARDING
+════════════════════════════════ */
+var _op = 0;
+function obNext(){
+  if(_op < 2){
+    _op++;
+    document.getElementById('ob-pages').style.transform = 'translateX(-'+(_op*33.333)+'%)';
+    [0,1,2].forEach(function(i){ document.getElementById('od'+i).classList.toggle('on', i===_op); });
+    document.getElementById('ob-btn').textContent = _op===2 ? 'Create my card' : 'Continue';
+    if(_op===2) document.getElementById('ob-skip').style.display='none';
+  } else {
+    show('register');
+  }
+}
+
+/* ════════════════════════════════
+   REGISTER
+════════════════════════════════ */
+async function register(){
+  var first = document.getElementById('r-first').value.trim();
+  var last  = document.getElementById('r-last').value.trim();
+  var email = document.getElementById('r-email').value.trim();
+  var phone = document.getElementById('r-phone').value.trim();
+  if(!first || !email){ alert('Please enter your first name and email address.'); return; }
+  M = {
+    id: 'JA'+Date.now().toString().slice(-8),
+    firstName: first, lastName: last,
+    name: first+(last?' '+last:''),
+    email: email, phone: phone||null,
+    adminCode: null,
+    stamps: 0, visits: 0, rewards: 0,
+    joined: new Date().toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'}),
+    joinedTimestamp: new Date().toISOString(),
+    history: []
+  };
+  saveM();
+
+  // Save to Firebase if available
+  try{
+    if(window.fbDB && window.fbAddDoc && window.fbCollection){
+      await window.fbAddDoc(window.fbCollection(window.fbDB, 'customers'), {
+        id: M.id,
+        firstName: M.firstName,
+        lastName: M.lastName,
+        name: M.name,
+        email: M.email,
+        phone: M.phone,
+        adminCode: M.adminCode,
+        stamps: M.stamps,
+        visits: M.visits,
+        rewards: M.rewards,
+        joined: M.joined,
+        joinedTimestamp: M.joinedTimestamp,
+        history: M.history
+      });
+    }
+  }catch(e){
+    console.log('Firebase save error:', e.message);
+  }
+
+  show('home'); renderHome();
+  document.getElementById('ni-home').classList.add('on');
+}
+
+/* ════════════════════════════════
+   RENDER HOME
+════════════════════════════════ */
+function renderHome(){
+  if(!M) return;
+  var h = new Date().getHours();
+  document.getElementById('home-greet').textContent = h<12?'Good morning,':h<17?'Good afternoon,':'Good evening,';
+  document.getElementById('home-uname').textContent = M.firstName;
+  document.getElementById('home-avatar').textContent = M.firstName[0].toUpperCase();
+  document.getElementById('home-card-name').textContent = M.name;
+
+  // mini barcode
+  try{
+    if(typeof JsBarcode !== 'undefined'){
+      JsBarcode('#mini-bc', M.id, {format:'CODE128',displayValue:false,margin:0,background:'transparent',lineColor:'#1a0929',width:1.4,height:40});
+    }
+  }catch(e){}
+  document.getElementById('mini-bc-num').textContent = fmtId(M.id);
+
+  // stamp row
+  var row = document.getElementById('home-stamps');
+  row.innerHTML = '';
+  for(var i=0;i<9;i++){
+    var d = document.createElement('div');
+    var cls = 'sdot';
+    if(i < M.stamps) cls += ' on';
+    if(i === 8){
+      if(M.stamps >= 9) cls += ' gift-full';
+      else cls += ' gift-empty';
+    }
+    d.className = cls;
+    row.appendChild(d);
+  }
+
+  // ring
+  var pct = M.stamps/9;
+  var circ = 2*Math.PI*15;
+  document.getElementById('ring-fg').setAttribute('stroke-dashoffset',(circ*(1-pct)).toFixed(2));
+  document.getElementById('ring-lbl').textContent = M.stamps+'/9';
+
+  // progress strip
+  var left = Math.max(0, 9-M.stamps);
+  document.getElementById('prog-fill').style.width = Math.round(pct*100)+'%';
+  document.getElementById('prog-cur').textContent = M.stamps;
+  if(M.stamps >= 9){
+    document.getElementById('rr-banner').classList.remove('hidden');
+    document.getElementById('prog-strip').classList.add('hidden');
+  } else {
+    document.getElementById('rr-banner').classList.add('hidden');
+    document.getElementById('prog-strip').classList.remove('hidden');
+    document.getElementById('prog-lbl').textContent = left===1 ? 'Just 1 more stamp!' : left+' stamps to your next reward';
+    document.getElementById('prog-sub').textContent = 'Collect 9 stamps for a free large açaí bowl';
+  }
+}
+
+/* ════════════════════════════════
+   RENDER BARCODE
+════════════════════════════════ */
+function renderBarcode(){
+  if(!M) return;
+  try{
+    if(typeof JsBarcode !== 'undefined'){
+      JsBarcode('#full-bc', M.id, {format:'CODE128',displayValue:false,margin:4,background:'#ffffff',lineColor:'#1a0929',width:2.3,height:70});
+    }
+  }catch(e){}
+  try{
+    if(typeof JsBarcode !== 'undefined'){
+      JsBarcode('#reward-bc', M.id+'RW', {format:'CODE128',displayValue:false,margin:0,background:'transparent',lineColor:'rgba(255,255,255,.86)',width:2,height:54});
+    }
+  }catch(e){}
+  document.getElementById('full-bc-num').textContent = fmtId(M.id);
+  document.getElementById('reward-bc-num').textContent = fmtId(M.id);
+  document.getElementById('bc-member-name').textContent = M.name;
+  document.getElementById('bc-st-n').textContent = M.stamps;
+
+  // stamp grid
+  var grid = document.getElementById('bc-stamps-grid');
+  grid.innerHTML = '';
+  for(var i=0;i<9;i++){
+    var d = document.createElement('div');
+    var cls = 'bcs';
+    if(i < M.stamps) cls += ' on';
+    if(i === 8 && M.stamps >= 9) cls += ' gift';
+    d.className = cls;
+    d.textContent = i<M.stamps ? '✓' : (i===8 ? '🎁' : (i+1));
+    grid.appendChild(d);
+  }
+
+  // progress
+  var left = Math.max(0, 9-M.stamps);
+  document.getElementById('bc-prog-n').textContent = left;
+  if(left===0){
+    document.getElementById('bc-prog-h').textContent = 'Reward ready! 🎉';
+    document.getElementById('bc-prog-p').textContent = 'Ask staff to scan & redeem';
+  } else {
+    document.getElementById('bc-prog-h').textContent = 'Stamps until free açaí';
+    document.getElementById('bc-prog-p').textContent = left===1 ? 'One more — so close!' : "You're on a roll!";
+  }
+}
+
+/* ════════════════════════════════
+   RENDER PROFILE
+════════════════════════════════ */
+function renderProfile(){
+  if(!M) return;
+  document.getElementById('p-avatar').textContent = M.firstName[0].toUpperCase();
+  document.getElementById('p-name').textContent = M.name;
+  document.getElementById('p-email').textContent = M.email;
+  document.getElementById('p-id').textContent = 'Card ID: '+fmtId(M.id);
+  document.getElementById('ps-stamps').textContent = M.stamps;
+  document.getElementById('ps-visits').textContent = M.visits;
+  document.getElementById('ps-rewards').textContent = M.rewards;
+  document.getElementById('p-detail-sub').textContent = M.email+(M.phone?' · '+M.phone:'');
+}
+
+/* ════════════════════════════════
+   MODALS
+════════════════════════════════ */
+function openInstallModal(){
+  // auto-detect platform
+  var isAndroid = /android/i.test(navigator.userAgent);
+  switchPlatform(isAndroid ? 'android' : 'ios');
+  document.getElementById('modal-install').classList.add('open');
+}
+function openRewardModal(){
+  renderBarcode();
+  document.getElementById('modal-reward').classList.add('open');
+  spawnConfetti();
+}
+function closeModal(id){ document.getElementById('modal-'+id).classList.remove('open'); }
+
+function switchPlatform(p){
+  document.getElementById('ptab-ios').classList.toggle('on', p==='ios');
+  document.getElementById('ptab-and').classList.toggle('on', p==='android');
+  document.getElementById('steps-ios').classList.toggle('hidden', p!=='ios');
+  document.getElementById('steps-android').classList.toggle('hidden', p!=='android');
+}
+
+/* ════════════════════════════════
+   INSTALL PROMPT (Android Chrome native)
+════════════════════════════════ */
+var _deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', function(e){
+  e.preventDefault();
+  _deferredPrompt = e;
+  // Show a native install banner on Android Chrome if available
+  // openInstallModal() could trigger e.prompt() here
+});
+
+/* ════════════════════════════════
+   BRIGHTNESS
+════════════════════════════════ */
+function setBright(v){
+  var c = document.querySelector('.bc-card');
+  if(c) c.style.filter = 'brightness('+(0.45+parseFloat(v)*0.55)+')';
+}
+
+/* ════════════════════════════════
+   CONFETTI
+════════════════════════════════ */
+function spawnConfetti(){
+  var layer = document.getElementById('confetti-layer');
+  layer.style.display = 'block'; layer.innerHTML = '';
+  var cols = ['#e8c55a','#c084fc','#fff','#a855f7','#f9a8d4','#6b1a9a','#f97316'];
+  for(var i=0;i<50;i++){
+    var p = document.createElement('div');
+    p.className = 'cp';
+    p.style.cssText = 'left:'+(Math.random()*100)+'vw;top:-14px;width:'+(5+Math.random()*7)+'px;height:'+(5+Math.random()*7)+'px;background:'+cols[Math.floor(Math.random()*cols.length)]+';animation-delay:'+(Math.random()*.95)+'s;animation-duration:'+(.8+Math.random()*.55)+'s';
+    layer.appendChild(p);
+  }
+  setTimeout(function(){ layer.style.display='none'; layer.innerHTML=''; }, 2600);
+}
+
+/* ════════════════════════════════
+   SIGN OUT / EDIT
+════════════════════════════════ */
+function signOut(){
+  if(!confirm("Sign out of Jim's Açaí Rewards?")) return;
+  M = null;
+  try{ localStorage.removeItem('jims_m'); }catch(e){}
+  show('register');
+}
+function editProfile(){
+  alert('Account editing coming soon!');
+}
+
+/* ════════════════════════════════
+   UTILS
+════════════════════════════════ */
+function fmtId(id){
+  return id.replace(/(.{4})/g,'$1 ').trim();
+}
+
+/* ════════════════════════════════
+   SERVICE WORKER
+════════════════════════════════ */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('./sw.js', { scope: './' })
+      .then(function(reg) { console.log('SW registered'); })
+      .catch(function(err) { console.log('SW registration failed:', err); });
+  });
+}
+</script>
+</body>
+</html>
+ 

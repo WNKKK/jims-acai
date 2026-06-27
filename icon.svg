@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="112" fill="#2d0845"/>
+  <circle cx="256" cy="256" r="168" fill="#6b1a9a"/>
+  <circle cx="204" cy="210" r="42" fill="#c084fc"/>
+  <circle cx="278" cy="190" r="48" fill="#9333ea"/>
+  <circle cx="314" cy="266" r="44" fill="#7c2db5"/>
+  <path d="M142 292c28 70 91 106 164 91 47-10 83-39 103-81 7-14-3-30-19-30H163c-16 0-27 15-21 30Z" fill="#e8c55a"/>
+  <text x="256" y="364" text-anchor="middle" font-family="Arial, sans-serif" font-size="72" font-weight="800" fill="#2d0845">J</text>
+</svg>

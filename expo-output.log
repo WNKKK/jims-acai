@@ -1,0 +1,16 @@
+Starting project at C:\Users\wlove\Downloads\Jim's
+Starting Metro Bundler
+TypeScript: The tsconfig.json#include property has been updated
+Waiting on http://localhost:8081
+Logs for your project will appear below.
+Web node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web node_modules\expo-router\entry.js ▓▓▓▓▓▓░░░░░░░░░░ 43.4% (39/86)
+Web node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 65.7% (483/596)
+Web Bundled 8720ms node_modules\expo-router\entry.js (770 modules)
+ LOG  [web] Logs will appear in the browser console
+Web node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web Bundled 72ms node_modules\expo-router\entry.js (1 module)
+ LOG  [web] Logs will appear in the browser console
+Web node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Web Bundled 32ms node_modules\expo-router\entry.js (1 module)
+ LOG  [web] Logs will appear in the browser console

@@ -1,0 +1,26 @@
+{
+  "expo": {
+    "name": "Jim's Acai",
+    "slug": "jims-acai",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "jimsacai",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.jimsacai.customer"
+    },
+    "android": {
+      "package": "com.jimsacai.customer"
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router"
+    ],
+    "experiments": {
+      "baseUrl": "/jims-acai"
+    }
+  }
+}

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Jim's Acai Rewards QR</title>
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;background:#f8f4ff;color:#1a0929;font-family:Arial,sans-serif;display:flex;align-items:center;justify-content:center;padding:24px}
+    main{width:min(520px,100%);background:#fff;border:1px solid #eadff5;border-radius:18px;padding:24px;box-shadow:0 14px 40px rgba(45,8,69,.12)}
+    h1{margin:0 0 8px;font-size:28px;color:#2d0845}
+    p{margin:0 0 18px;color:#6b5888;line-height:1.5}
+    label{display:block;font-size:12px;font-weight:700;color:#4a1070;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+    input{width:100%;border:1.5px solid #dfd2ef;border-radius:12px;padding:13px 14px;font-size:15px;margin-bottom:12px}
+    button{width:100%;border:0;border-radius:999px;background:#6b1a9a;color:#fff;font-weight:700;font-size:16px;padding:14px;cursor:pointer}
+    .qr{margin-top:24px;text-align:center;padding:24px;border:2px dashed #dfd2ef;border-radius:16px}
+    .qr img{width:260px;height:260px;max-width:100%;image-rendering:pixelated}
+    .url{margin-top:14px;font-size:13px;color:#6b5888;word-break:break-all}
+    .print-title{display:none}
+    @media print{
+      body{background:#fff;padding:0}
+      main{box-shadow:none;border:0;width:100%;padding:24px}
+      .controls,p,h1{display:none}
+      .print-title{display:block;text-align:center;font-size:34px;color:#2d0845;margin:0 0 20px}
+      .qr{border:0;margin-top:0}
+      .qr img{width:360px;height:360px}
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Jim's Acai Rewards QR</h1>
+    <p>After you host the PWA, paste the public rewards link here. Print this page and place it at the counter.</p>
+    <section class="controls">
+      <label for="url">Rewards app link</label>
+      <input id="url" value="https://your-website.com/jims-acai/" placeholder="https://your-website.com/jims-acai/"/>
+      <button onclick="makeQr()">Generate QR</button>
+    </section>
+    <h2 class="print-title">Scan to join Jim's Acai Rewards</h2>
+    <section class="qr">
+      <img id="qr" alt="Rewards QR code"/>
+      <div class="url" id="shown-url"></div>
+    </section>
+  </main>
+  <script>
+    function makeQr(){
+      var url = document.getElementById('url').value.trim();
+      if(!url) return;
+      document.getElementById('qr').src = 'https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=16&data=' + encodeURIComponent(url);
+      document.getElementById('shown-url').textContent = url;
+    }
+    makeQr();
+  </script>
+</body>
+</html>

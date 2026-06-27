@@ -1,0 +1,34 @@
+{
+    "name":  "jims-acai-app",
+    "version":  "1.0.0",
+    "private":  true,
+    "homepage":  "https://WNKKK.github.io/jims-acai",
+    "main":  "expo-router/entry",
+    "scripts":  {
+                    "start":  "expo start",
+                    "android":  "expo start --android",
+                    "ios":  "expo start --ios",
+                    "web":  "expo start --web",
+                    "deploy":  "npm run build:pwa \u0026\u0026 gh-pages -d dist",
+                    "build:pwa":  "node scripts/build-static-pwa.mjs"
+                },
+    "dependencies":  {
+                         "@expo/metro-runtime":  "~6.1.2",
+                         "expo":  "~54.0.29",
+                         "expo-asset":  "~12.0.11",
+                         "expo-router":  "~6.0.19",
+                         "expo-status-bar":  "~3.0.9",
+                         "react":  "19.1.0",
+                         "react-dom":  "19.1.0",
+                         "react-native":  "0.81.5",
+                         "react-native-safe-area-context":  "~5.6.2",
+                         "react-native-screens":  "~4.16.0",
+                         "react-native-web":  "~0.21.2",
+                         "react-native-webview":  "13.15.0"
+                     },
+    "devDependencies":  {
+                            "@types/react":  "~19.1.17",
+                            "gh-pages":  "^6.3.0",
+                            "typescript":  "~5.9.3"
+                        }
+}
