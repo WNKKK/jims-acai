@@ -1,9 +1,9 @@
-name: Deploy Customer Portal to GitHub Pages
+name: Deploy Admin Portal to GitHub Pages
 
 on:
   push:
     branches:
-      - master
+      - admin-pages
   workflow_dispatch:
 
 permissions:
@@ -12,14 +12,13 @@ permissions:
   id-token: write
 
 concurrency:
-  group: customer-pages
+  group: admin-pages
   cancel-in-progress: true
 
 jobs:
   deploy:
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
